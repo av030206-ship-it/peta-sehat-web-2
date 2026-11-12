@@ -4,7 +4,7 @@
   const esc = UI.esc, $ = id => document.getElementById(id), v = $('v');
   const NAMA_TINGKAT = { negara: 'Nasional', provinsi: 'Provinsi', kota: 'Kota/Kabupaten', kecamatan: 'Kecamatan', kelurahan: 'Kelurahan/Desa' };
   const ANAK = { negara: 'Provinsi', provinsi: 'Kota/Kabupaten', kota: 'Kecamatan', kecamatan: 'Kelurahan/Desa', kelurahan: '' };
-  const IKON = { negara: '🇮🇩', provinsi: '🏛️', kota: '🏙️', kecamatan: '🏘️', kelurahan: '📍' };
+  const IKON = { negara: '🌏', provinsi: '🏛️', kota: '🏙️', kecamatan: '🏘️', kelurahan: '📍' };
   const JENIS = { genangan: '💧 Genangan air', sampah: '🗑️ Sampah', asap: '🔥 Asap', sanitasi: '🚽 Sanitasi' };
   const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], dua = n => ('0' + n).slice(-2);
   const tgl = ms => { const d = new Date(ms); return d.getDate() + ' ' + BULAN[d.getMonth()]; }, jam = ms => tgl(ms) + ' ' + new Date(ms).getFullYear() + ' ' + dua(new Date(ms).getHours()) + '.' + dua(new Date(ms).getMinutes());
@@ -19,6 +19,7 @@
     v.innerHTML = '<div class="kartu"><div class="baris antara bungkus"><div><div class="muted kecil" id="jejak" style="line-height:26px">' + jejak + '</div><h1 style="margin:2px 0 0">' + IKON[tk] + ' ' + esc(d.nama) + '</h1><span class="pill biru">' + esc(NAMA_TINGKAT[tk] || tk) + '</span></div>' +
       '<label class="fld" style="margin:0">Periode<select id="hari" class="in" style="width:auto"><option value="30">30 hari</option><option value="90">90 hari</option><option value="365">1 tahun</option><option value="0">Semua waktu</option></select></label></div>' +
       '<p class="muted kecil" style="margin:8px 0 0">Diperbarui ' + jam(d.dibuat) + '. Data dari laporan dan setoran yang dimasukkan lewat aplikasi Peta Sehat, dijumlahkan ke kelurahan, kota/kabupaten, provinsi, dan nasional.</p></div>' +
+      '<div class="kartu" id="pemilih"><h2 style="margin:0 0 6px">📍 Pilih wilayah</h2><div class="dsb-pilih" id="pemilihIsi"><span class="muted">Memuat pilihan wilayah…</span></div></div>' +
       '<div class="kisi dsb-kpi">' + kpi('📝', 'Laporan', angka(r.total)) + kpi('🎯', 'Misi aktif', angka(r.aktif), r.merah ? '🔴 ' + r.merah + ' · 🟡 ' + r.kuning + ' · 🟢 ' + r.hijau : '') + kpi('✅', 'Selesai', angka(r.selesai), persen == null ? '' : persen + '% dari laporan') +
       kpi('🛡️', 'Terverifikasi', angka(r.terverifikasi)) + kpi('⏰', 'Terlambat', angka(r.terlambat)) + kpi('♻️', 'Sampah disetor', angka(r.kg) + ' kg', angka(r.setoran) + ' setoran') + kpi('🦸', 'Kader', angka(r.kader)) + kpi('🏘️', 'Warga', angka(r.warga)) + '</div>' +
       (r.total || r.setoran ? '' : '<div class="kartu kosong"><div class="ik">🌿</div><p>Belum ada laporan di ' + esc(d.nama) + ' pada periode ini.</p>' + (d.hari && d.total_semua_waktu > 0 ? '<p class="muted">Sepanjang waktu ada ' + d.total_semua_waktu + ' laporan di seluruh Indonesia.</p><button class="tombol sebaris" id="bSemua">Lihat semua waktu</button>' : '<p class="muted">Data akan muncul setelah ada laporan atau setoran yang dimasukkan lewat aplikasi.</p>') + '</div>') +
@@ -34,7 +35,18 @@
     $('hari').value = String(d.hari); $('hari').onchange = e => { st.hari = Number(e.target.value); muat(); };
     v.onclick = e => { const a = e.target.closest('[data-w]'); if (!a) return; if (a.tagName === 'A') e.preventDefault(); if (a.tagName === 'TR' && a.style.cursor !== 'pointer') return; st.id = a.dataset.w; try { history.replaceState(null, '', 'dasbor.html?w=' + encodeURIComponent(st.id) + '&hari=' + st.hari); } catch (x) {} muat(); window.scrollTo(0, 0); };
     if ($('bCsv')) $('bCsv').onclick = csv; if ($('bCsv2')) $('bCsv2').onclick = csv;
-    gambarGrafik();
+    gambarGrafik(); isiPemilih(d);
+  }
+  // Pemilih wilayah bertingkat: Provinsi > Kota/Kabupaten > Kecamatan > Kelurahan/Desa. Daftar anak diambil dari server dan disimpan sementara.
+  const cacheAnak = {};
+  async function anakDari(id) { if (cacheAnak[id]) return cacheAnak[id]; try { const r = await TS.panggil('dasborWilayah', { wilayah_id: id, hari: st.hari }, { get: true, tanpaToken: true }); cacheAnak[id] = r.anak.filter(a => !a.semu).map(a => ({ id: a.id, nama: a.nama, tingkat: a.tingkat })).sort((x, y) => x.nama.localeCompare(y.nama)); } catch (e) { cacheAnak[id] = []; } return cacheAnak[id]; }
+  async function isiPemilih(d) {
+    cacheAnak[d.wilayah_id] = d.anak.filter(a => !a.semu).map(a => ({ id: a.id, nama: a.nama, tingkat: a.tingkat })).sort((x, y) => x.nama.localeCompare(y.nama));
+    const induk = [''].concat(d.jejak.map(j => j.id)), tingkat = d.jejak.length < induk.length ? induk.length : 0, daftar = await Promise.all(induk.map(anakDari)), el = $('pemilihIsi'); if (!el || data !== d) return;
+    const kolom = []; induk.forEach((pid, k) => { const opsi = daftar[k]; if (!opsi.length) return; const dipilih = d.jejak[k] ? d.jejak[k].id : ''; kolom.push({ pid: pid, opsi: opsi, dipilih: dipilih, label: NAMA_TINGKAT[opsi[0].tingkat] || 'Wilayah' }); });
+    el.innerHTML = kolom.map((c, i) => '<label class="fld" style="margin:0">' + esc(c.label) + '<select class="in" data-p="' + esc(c.pid) + '"><option value="">Semua ' + esc(c.label.toLowerCase()) + '</option>' + c.opsi.map(o => '<option value="' + esc(o.id) + '"' + (o.id === c.dipilih ? ' selected' : '') + '>' + esc(o.nama) + '</option>').join('') + '</select></label>').join('') + (kolom.length ? '' : '<span class="muted">Belum ada wilayah yang memasukkan data.</span>') + (d.wilayah_id ? '<button class="tombol garis kecil sebaris" id="bSemuaWil" type="button">🌏 Seluruh Indonesia</button>' : '');
+    el.querySelectorAll('select').forEach(sel => { sel.onchange = () => { st.id = sel.value || sel.dataset.p; try { history.replaceState(null, '', 'dasbor.html?w=' + encodeURIComponent(st.id) + '&hari=' + st.hari); } catch (x) {} muat(); }; });
+    if ($('bSemuaWil')) $('bSemuaWil').onclick = () => { st.id = ''; muat(); };
   }
   function gambarGrafik() {
     grafik.forEach(g => g.destroy()); grafik = []; if (!window.Chart || !data) return; const d = data, ink = css('--ink-muted'), gar = css('--line'); Chart.defaults.font.family = 'Plus Jakarta Sans, system-ui, sans-serif'; Chart.defaults.color = ink;
