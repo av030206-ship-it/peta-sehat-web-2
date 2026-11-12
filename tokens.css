@@ -1,0 +1,54 @@
+/* Peta Sehat: token desain (satu-satunya sumber warna, jarak, radius, bayangan, gerak). Font disimpan di folder font/ agar jalan tanpa internet. */
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:600;font-display:swap;src:url("font/fraunces-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:700;font-display:swap;src:url("font/fraunces-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:500;font-display:swap;src:url("font/jetbrains-mono-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400;font-display:swap;src:url("font/plus-jakarta-sans-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:500;font-display:swap;src:url("font/plus-jakarta-sans-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:600;font-display:swap;src:url("font/plus-jakarta-sans-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:700;font-display:swap;src:url("font/plus-jakarta-sans-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:800;font-display:swap;src:url("font/plus-jakarta-sans-latin-800-normal.woff2") format("woff2")}
+:root, [data-theme="light"] {
+  --surface: #F7F3EA; --surface-raised: #FFFFFF; --surface-sunken: #ECE7DB;
+  --ink: #0E2036; --ink-muted: #4A5B6E; --line: #DCD6C8; --line-strong: #7A8797;
+  --brand: #12385F; --on-brand: #FFFFFF; --brand-soft: #DDE8F3;
+  --tosca: #08716F; --on-tosca: #FFFFFF; --tosca-soft: #D5EFEC; --tosca-ink: #075C5A;
+  --plum: #7A3B8C; --on-plum: #FFFFFF; --plum-soft: #F0E1F4; --plum-ink: #5E2A6D;
+  --merah: #D12F36; --on-merah: #FFFFFF; --merah-soft: #FCE3E3; --merah-ink: #9A1B21;
+  --kuning: #F2AE1B; --on-kuning: #2E2100; --kuning-soft: #FFF0C7; --kuning-ink: #7A5200;
+  --hijau: #198053; --on-hijau: #FFFFFF; --hijau-soft: #DAF2E5; --hijau-ink: #126340;
+  --shadow-card: 0 1px 2px rgba(14,32,54,0.06), 0 8px 24px rgba(14,32,54,0.08);
+  --shadow-pop: 0 12px 32px rgba(18,56,95,0.18);
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --radius-sm: 10px; --radius-md: 16px; --radius-lg: 24px; --radius-xl: 36px; --radius-pill: 999px;
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease-out: cubic-bezier(.2, .8, .2, 1); --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --dur-press: 90ms; --dur-fast: 160ms; --dur-base: 260ms; --dur-slow: 480ms;
+}
+[data-theme="dark"] {
+  --surface: #0A1626; --surface-raised: #102338; --surface-sunken: #071120;
+  --ink: #EDF3F9; --ink-muted: #A8B7C6; --line: #22364C; --line-strong: #7C8DA0;
+  --brand: #7FC4F2; --on-brand: #06192B; --brand-soft: #17314D;
+  --tosca: #4FD1C5; --on-tosca: #04201E; --tosca-soft: #0F3A3A; --tosca-ink: #8EE6DC;
+  --plum: #D9A6E8; --on-plum: #2A0F33; --plum-soft: #34173F; --plum-ink: #E9C7F3;
+  --merah: #FF7A7F; --on-merah: #3B0508; --merah-soft: #411418; --merah-ink: #FFB3B6;
+  --kuning: #F6C453; --on-kuning: #2B1E00; --kuning-soft: #3F300A; --kuning-ink: #FFDD8A;
+  --hijau: #57D79A; --on-hijau: #04261A; --hijau-soft: #0F3B29; --hijau-ink: #9BEBC4;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+  --shadow-pop: 0 12px 32px rgba(0,0,0,0.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --surface: #0A1626; --surface-raised: #102338; --surface-sunken: #071120;
+    --ink: #EDF3F9; --ink-muted: #A8B7C6; --line: #22364C; --line-strong: #7C8DA0;
+    --brand: #7FC4F2; --on-brand: #06192B; --brand-soft: #17314D;
+    --tosca: #4FD1C5; --on-tosca: #04201E; --tosca-soft: #0F3A3A; --tosca-ink: #8EE6DC;
+    --plum: #D9A6E8; --on-plum: #2A0F33; --plum-soft: #34173F; --plum-ink: #E9C7F3;
+    --merah: #FF7A7F; --on-merah: #3B0508; --merah-soft: #411418; --merah-ink: #FFB3B6;
+    --kuning: #F6C453; --on-kuning: #2B1E00; --kuning-soft: #3F300A; --kuning-ink: #FFDD8A;
+    --hijau: #57D79A; --on-hijau: #04261A; --hijau-soft: #0F3B29; --hijau-ink: #9BEBC4;
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+    --shadow-pop: 0 12px 32px rgba(0,0,0,0.5);
+  }
+}

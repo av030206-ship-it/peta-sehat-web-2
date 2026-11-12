@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dasbor Peta Sehat</title>
+<meta name="theme-color" content="#F7F3EA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A1626" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon_32.png">
+<link rel="apple-touch-icon" href="favicon_192.png">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="gaya.css">
+<style>
+/* Dasbor: tampilan HP dulu (kartu besar, angka besar), tabel hanya di layar lebar */
+.dsb-hp{display:none}.kisi>.kartu{min-width:0}.kisi canvas{max-width:100%}.kisi>.kartu>div{position:relative}
+.dsb-kartu{padding:12px 0;border-top:1px solid var(--line)}.dsb-kartu b{font-size:17px;line-height:24px}
+.dsb-chip{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font:700 14px/20px var(--font-sans),sans-serif;color:var(--ink)}
+body{font-size:16px}.angka-besar,.kisi .kartu .angka-besar{font-size:34px;line-height:40px}.kisi .kartu small{font-size:14px;line-height:20px;font-weight:700}
+@media (max-width:700px){.dsb-hp{display:block}.dsb-lebar{display:none}.dsb-kpi{grid-template-columns:repeat(2,1fr)!important}.kisi .kartu{padding:14px!important}h1{font-size:30px;line-height:36px}.kartu{margin-left:12px;margin-right:12px}.kisi{margin-left:12px;margin-right:12px}}
+</style>
+</head>
+<body class="panel-lebar">
+<header class="bar"><div class="brand"><span class="logo"></span>Dasbor</div><div class="aksi"><a class="ikon-tombol" href="login.html" aria-label="Masuk atau kembali ke aplikasi">🏠</a><button class="ikon-tombol" id="bTema" aria-label="Ganti tema">🌓</button></div></header>
+<div id="banner"></div>
+<main class="halaman" id="v" style="max-width:1100px;margin:0 auto"><div class="skeleton"></div><div class="skeleton"></div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="config.js"></script><script src="ui.js"></script><script src="api.js"></script><script src="dasbor.js"></script>
+</body>
+</html>
