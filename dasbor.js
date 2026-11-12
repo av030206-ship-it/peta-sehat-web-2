@@ -14,7 +14,7 @@
 
   const kpi = (ik, a, b, ket) => '<div class="kartu" style="margin:0"><small>' + ik + ' ' + esc(a) + '</small><div class="angka-besar">' + b + '</div>' + (ket ? '<small class="muted">' + ket + '</small>' : '') + '</div>';
   function tampil(d) {
-    data = d; const r = d.ringkasan, tk = d.tingkat, adaAnak = d.anak.length > 0, persen = r.total ? Math.round(r.selesai / r.total * 100) : null;
+    data = d; const r = d.ringkasan, tk = d.tingkat, adaAnak = d.anak.length > 0, anakData = d.anak.filter(a => a.total > 0), persen = r.total ? Math.round(r.selesai / r.total * 100) : null;
     const jejak = ['<a href="#" data-w="">' + IKON.negara + ' Indonesia</a>'].concat(d.jejak.map(j => '<a href="#" data-w="' + esc(j.id) + '">' + esc(j.nama) + '</a>')).join(' <span class="muted">›</span> ');
     v.innerHTML = '<div class="kartu"><div class="baris antara bungkus"><div><div class="muted kecil" id="jejak" style="line-height:26px">' + jejak + '</div><h1 style="margin:2px 0 0">' + IKON[tk] + ' ' + esc(d.nama) + '</h1><span class="pill biru">' + esc(NAMA_TINGKAT[tk] || tk) + '</span></div>' +
       '<label class="fld" style="margin:0">Periode<select id="hari" class="in" style="width:auto"><option value="30">30 hari</option><option value="90">90 hari</option><option value="365">1 tahun</option><option value="0">Semua waktu</option></select></label></div>' +
@@ -25,7 +25,7 @@
       (r.total || r.setoran ? '' : '<div class="kartu kosong"><div class="ik">🌿</div><p>Belum ada laporan di ' + esc(d.nama) + ' pada periode ini.</p>' + (d.hari && d.total_semua_waktu > 0 ? '<p class="muted">Sepanjang waktu ada ' + d.total_semua_waktu + ' laporan di seluruh Indonesia.</p><button class="tombol sebaris" id="bSemua">Lihat semua waktu</button>' : '<p class="muted">Data akan muncul setelah ada laporan atau setoran yang dimasukkan lewat aplikasi.</p>') + '</div>') +
       '<div class="kisi" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"><div class="kartu" style="margin:0"><h2>Tren mingguan</h2><div style="height:220px"><canvas id="gTren" role="img" aria-label="Laporan dan misi selesai 12 minggu terakhir"></canvas></div></div>' +
       '<div class="kartu" style="margin:0"><h2>Jenis masalah</h2><div style="height:220px"><canvas id="gJenis" role="img" aria-label="Jumlah laporan per jenis masalah"></canvas></div></div>' +
-      (adaAnak ? '<div class="kartu" style="margin:0"><h2>Per ' + esc(ANAK[tk].toLowerCase()) + ': misi aktif</h2><div style="height:' + Math.max(220, Math.min(d.anak.length, 12) * 30 + 50) + 'px"><canvas id="gAnak" role="img" aria-label="Misi aktif per wilayah"></canvas></div></div>' : '') + '</div>' +
+      (anakData.length ? '<div class="kartu" style="margin:0"><h2>Per ' + esc(ANAK[tk].toLowerCase()) + ': misi aktif</h2><div style="height:' + Math.max(220, Math.min(anakData.length, 12) * 30 + 50) + 'px"><canvas id="gAnak" role="img" aria-label="Misi aktif per wilayah"></canvas></div></div>' : '') + '</div>' +
       (adaAnak ? '<div class="kartu dsb-hp"><h2 style="margin:0 0 4px">Rincian per ' + esc(ANAK[tk].toLowerCase()) + '</h2><p class="muted kecil">Ketuk untuk melihat tingkat di bawahnya.</p>' + d.anak.map(a => '<div class="dsb-kartu" data-w="' + esc(a.id) + '" style="' + (a.tingkat === 'kelurahan' ? '' : 'cursor:pointer') + '"><div class="baris antara"><b>' + esc(a.nama) + '</b>' + (a.tingkat === 'kelurahan' ? '' : '<span class="muted">›</span>') + '</div><div class="dsb-chip"><span>📝 ' + angka(a.total) + ' laporan</span><span>🎯 ' + angka(a.aktif) + ' aktif</span><span>✅ ' + angka(a.selesai) + '</span></div><div class="dsb-chip"><span>🔴 ' + a.merah + '</span><span>🟡 ' + a.kuning + '</span><span>🟢 ' + a.hijau + '</span><span>⏰ ' + angka(a.terlambat) + '</span><span>♻️ ' + angka(a.kg) + ' kg</span></div></div>').join('') + '<button class="tombol garis" id="bCsv2" style="margin-top:10px">⬇️ Unduh CSV</button></div>' : '') +
       (adaAnak ? '<div class="kartu dsb-lebar"><div class="baris antara bungkus"><h2 style="margin:0">Rincian per ' + esc(ANAK[tk].toLowerCase()) + '</h2><button class="tombol kecil garis sebaris" id="bCsv">⬇️ Unduh CSV</button></div><p class="muted kecil">Ketuk baris untuk melihat tingkat di bawahnya.</p><div class="gulir-x"><table class="tabel" id="tAnak"><tr><th>' + esc(ANAK[tk]) + '</th><th>Laporan</th><th>Aktif</th><th>🔴</th><th>🟡</th><th>🟢</th><th>Selesai</th><th>Terlambat</th><th>Setoran (kg)</th><th>Kader</th><th>Warga</th></tr>' +
         d.anak.map(a => '<tr data-w="' + esc(a.id) + '" style="' + (a.tingkat === 'kelurahan' ? '' : 'cursor:pointer') + '"><td><b>' + esc(a.nama) + '</b></td><td>' + angka(a.total) + '</td><td>' + angka(a.aktif) + '</td><td>' + a.merah + '</td><td>' + a.kuning + '</td><td>' + a.hijau + '</td><td>' + angka(a.selesai) + '</td><td>' + angka(a.terlambat) + '</td><td>' + angka(a.kg) + '</td><td>' + angka(a.kader) + '</td><td>' + angka(a.warga) + '</td></tr>').join('') + '</table></div></div>' :
@@ -37,15 +37,49 @@
     if ($('bCsv')) $('bCsv').onclick = csv; if ($('bCsv2')) $('bCsv2').onclick = csv;
     gambarGrafik(); isiPemilih(d);
   }
-  // Pemilih wilayah bertingkat: Provinsi > Kota/Kabupaten > Kecamatan > Kelurahan/Desa. Daftar anak diambil dari server dan disimpan sementara.
-  const cacheAnak = {};
-  async function anakDari(id) { if (cacheAnak[id]) return cacheAnak[id]; try { const r = await TS.panggil('dasborWilayah', { wilayah_id: id, hari: st.hari }, { get: true, tanpaToken: true }); cacheAnak[id] = r.anak.filter(a => !a.semu).map(a => ({ id: a.id, nama: a.nama, tingkat: a.tingkat })).sort((x, y) => x.nama.localeCompare(y.nama)); } catch (e) { cacheAnak[id] = []; } return cacheAnak[id]; }
+  // ---- Daftar wilayah seluruh Indonesia (kode dan nama Kemendagri, data lokal web/data/wilayah) ----
+  // Pemilih dan rincian selalu menampilkan SEMUA provinsi, kota/kabupaten, kecamatan, dan kelurahan/desa, walau belum ada datanya (angka 0).
+  // id wilayah di server = 'K-' + kode. Data lokal hanya untuk nama dan susunan; semua angka tetap dari server.
+  let PROV = null; const KOTA = {};
+  const provStatik = async () => PROV || (PROV = await (await fetch('data/wilayah/provinsi.json')).json());
+  const kotaStatik = async p => KOTA[p] || (KOTA[p] = await (await fetch('data/wilayah/p-' + p + '.json')).json());
+  const TING = ['provinsi', 'kota', 'kecamatan', 'kelurahan'];
+  // anak wilayah menurut kode ('' = Indonesia): [{id, kode, nama, tingkat}]
+  async function anakStatik(kode) {
+    const bagian = kode ? kode.split('.') : [], mk = (a, t) => a.map(x => ({ id: 'K-' + x[0], kode: x[0], nama: x[1], tingkat: t })), sub = { id: 0 };
+    try {
+      if (!kode) return mk(await provStatik(), 'provinsi');
+      const kab = await kotaStatik(bagian[0]); if (bagian.length === 1) return mk(kab, 'kota');
+      const kt = kab.find(k => k[0] === bagian[0] + '.' + bagian[1]); if (!kt) return []; if (bagian.length === 2) return mk(kt[2], 'kecamatan');
+      const kc = kt[2].find(c => c[0] === bagian.slice(0, 3).join('.')); if (!kc) return []; return bagian.length === 3 ? mk(kc[2], 'kelurahan') : [];
+    } catch (e) { return []; }
+  }
+  // rantai induk dari kode: [{id, kode, nama, tingkat}] dari provinsi ke bawah
+  async function rantaiStatik(kode) {
+    const hasil = []; if (!kode) return hasil; const b = kode.split('.');
+    for (let i = 1; i <= b.length; i++) { const k = b.slice(0, i).join('.'), daftar = await anakStatik(b.slice(0, i - 1).join('.')), x = daftar.find(a => a.kode === k); hasil.push(x || { id: 'K-' + k, kode: k, nama: k, tingkat: TING[i - 1] }); }
+    return hasil;
+  }
+  const baris0 = () => ({ total: 0, aktif: 0, selesai: 0, terverifikasi: 0, merah: 0, kuning: 0, hijau: 0, terlambat: 0, setoran: 0, kg: 0, kader: 0, warga: 0 });
+  function dataNol(id, jejak, nama, tingkat) {
+    const now = Date.now(); return { wilayah_id: id, nama: nama, tingkat: tingkat, jejak: jejak, hari: st.hari, ringkasan: baris0(), anak: [], jenis: {}, tren: Array.from({ length: 12 }, (_, i) => ({ minggu: now - (11 - i) * 7 * 86400000, lapor: 0, selesai: 0 })), dibuat: now, total_semua_waktu: 0, nol: true,
+      catatan: 'Hanya angka gabungan dari laporan dan setoran yang dimasukkan lewat aplikasi. Tanpa nama, nomor, alamat, atau lokasi tepat. Jumlah pengguna di bawah 3 disembunyikan.' };
+  }
+  // Gabungkan daftar wilayah lengkap (statik) dengan angka dari server: yang belum ada datanya tampil 0.
+  async function gabungAnak(d) {
+    const kode = d.wilayah_id && /^K-/.test(d.wilayah_id) ? d.wilayah_id.slice(2) : (d.wilayah_id ? null : ''); if (kode === null) return d.anak;
+    const statik = await anakStatik(kode), byId = {}; d.anak.forEach(a => { byId[a.id] = a; });
+    const baris = statik.map(x => byId[x.id] ? Object.assign({}, byId[x.id], { nama: x.nama }) : Object.assign({ id: x.id, nama: x.nama, tingkat: x.tingkat }, baris0()));
+    const idStatik = {}; statik.forEach(x => { idStatik[x.id] = 1; });
+    return baris.concat(d.anak.filter(a => !idStatik[a.id])).sort((a, b) => (b.total - a.total) || a.nama.localeCompare(b.nama));
+  }
+  // Pemilih bertingkat: satu pilihan per tingkat sampai tingkat terpilih, ditambah satu tingkat di bawahnya.
   async function isiPemilih(d) {
-    cacheAnak[d.wilayah_id] = d.anak.filter(a => !a.semu).map(a => ({ id: a.id, nama: a.nama, tingkat: a.tingkat })).sort((x, y) => x.nama.localeCompare(y.nama));
-    const induk = [''].concat(d.jejak.map(j => j.id)), tingkat = d.jejak.length < induk.length ? induk.length : 0, daftar = await Promise.all(induk.map(anakDari)), el = $('pemilihIsi'); if (!el || data !== d) return;
-    const kolom = []; induk.forEach((pid, k) => { const opsi = daftar[k]; if (!opsi.length) return; const dipilih = d.jejak[k] ? d.jejak[k].id : ''; kolom.push({ pid: pid, opsi: opsi, dipilih: dipilih, label: NAMA_TINGKAT[opsi[0].tingkat] || 'Wilayah' }); });
-    el.innerHTML = kolom.map((c, i) => '<label class="fld" style="margin:0">' + esc(c.label) + '<select class="in" data-p="' + esc(c.pid) + '"><option value="">Semua ' + esc(c.label.toLowerCase()) + '</option>' + c.opsi.map(o => '<option value="' + esc(o.id) + '"' + (o.id === c.dipilih ? ' selected' : '') + '>' + esc(o.nama) + '</option>').join('') + '</select></label>').join('') + (kolom.length ? '' : '<span class="muted">Belum ada wilayah yang memasukkan data.</span>') + (d.wilayah_id ? '<button class="tombol garis kecil sebaris" id="bSemuaWil" type="button">🌏 Seluruh Indonesia</button>' : '');
-    el.querySelectorAll('select').forEach(sel => { sel.onchange = () => { st.id = sel.value || sel.dataset.p; try { history.replaceState(null, '', 'dasbor.html?w=' + encodeURIComponent(st.id) + '&hari=' + st.hari); } catch (x) {} muat(); }; });
+    const kode = d.wilayah_id && /^K-/.test(d.wilayah_id) ? d.wilayah_id.slice(2) : '', rantai = await rantaiStatik(kode), el = $('pemilihIsi'); if (!el || data !== d) return;
+    const induk = [''].concat(rantai.map(r => r.kode)), daftar = await Promise.all(induk.map(anakStatik)); if (data !== d) return;
+    const kolom = []; induk.forEach((pk, k) => { if (!daftar[k].length) return; kolom.push({ pk: pk, opsi: daftar[k], dipilih: rantai[k] ? rantai[k].kode : '', label: NAMA_TINGKAT[daftar[k][0].tingkat] }); });
+    el.innerHTML = kolom.map(c => '<label class="fld" style="margin:0">' + esc(c.label) + '<select class="in" data-p="' + esc(c.pk) + '"><option value="">' + (c.pk === '' ? 'Semua provinsi' : 'Semua ' + esc(c.label.toLowerCase())) + '</option>' + c.opsi.map(o => '<option value="' + esc(o.kode) + '"' + (o.kode === c.dipilih ? ' selected' : '') + '>' + esc(o.nama) + '</option>').join('') + '</select></label>').join('') + (d.wilayah_id ? '<button class="tombol garis kecil sebaris" id="bSemuaWil" type="button">🌏 Seluruh Indonesia</button>' : '');
+    el.querySelectorAll('select').forEach(sel => { sel.onchange = () => { const k = sel.value || sel.dataset.p; st.id = k ? 'K-' + k : ''; try { history.replaceState(null, '', 'dasbor.html?w=' + encodeURIComponent(st.id) + '&hari=' + st.hari); } catch (x) {} muat(); }; });
     if ($('bSemuaWil')) $('bSemuaWil').onclick = () => { st.id = ''; muat(); };
   }
   function gambarGrafik() {
@@ -53,7 +87,7 @@
     const opsi = { responsive: true, maintainAspectRatio: false, animation: matchMedia('(prefers-reduced-motion: reduce)').matches ? false : undefined, scales: { x: { grid: { color: gar } }, y: { grid: { color: gar }, beginAtZero: true, ticks: { precision: 0 } } } };
     grafik.push(new Chart($('gTren'), { type: 'line', data: { labels: d.tren.map(t => tgl(t.minggu)), datasets: [{ label: 'Dilaporkan', data: d.tren.map(t => t.lapor), borderColor: css('--merah'), backgroundColor: css('--merah'), tension: .3 }, { label: 'Selesai', data: d.tren.map(t => t.selesai), borderColor: css('--hijau'), backgroundColor: css('--hijau'), tension: .3 }] }, options: opsi }));
     const kj = Object.keys(d.jenis); grafik.push(new Chart($('gJenis'), { type: 'bar', data: { labels: kj.map(k => JENIS[k] || k), datasets: [{ label: 'Laporan', data: kj.map(k => d.jenis[k]), backgroundColor: css('--tosca') }] }, options: Object.assign({}, opsi, { plugins: { legend: { display: false } } }) }));
-    if ($('gAnak')) { const a = d.anak.slice(0, 12); grafik.push(new Chart($('gAnak'), { type: 'bar', data: { labels: a.map(x => x.nama), datasets: [{ label: '🔴 Merah', data: a.map(x => x.merah), backgroundColor: css('--merah') }, { label: '🟡 Kuning', data: a.map(x => x.kuning), backgroundColor: css('--kuning') }, { label: '🟢 Hijau', data: a.map(x => x.hijau), backgroundColor: css('--hijau') }] },
+    if ($('gAnak')) { const a = d.anak.filter(x => x.total > 0).slice(0, 12); grafik.push(new Chart($('gAnak'), { type: 'bar', data: { labels: a.map(x => x.nama), datasets: [{ label: '🔴 Merah', data: a.map(x => x.merah), backgroundColor: css('--merah') }, { label: '🟡 Kuning', data: a.map(x => x.kuning), backgroundColor: css('--kuning') }, { label: '🟢 Hijau', data: a.map(x => x.hijau), backgroundColor: css('--hijau') }] },
       options: Object.assign({}, opsi, { indexAxis: 'y', scales: { x: { stacked: true, grid: { color: gar }, ticks: { precision: 0 } }, y: { stacked: true, grid: { display: false } } } }) })); }
   }
   function csv() {
@@ -62,8 +96,15 @@
     const b = new Blob(['﻿' + baris.join('\n')], { type: 'text/csv;charset=utf-8' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'dasbor-' + (d.nama || 'indonesia').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 3000);
   }
   async function muat() {
-    try { tampil(await TS.panggil('dasborWilayah', { wilayah_id: st.id, hari: st.hari }, { get: true, tanpaToken: true })); }
-    catch (e) { v.innerHTML = '<div class="kartu tengah"><p><b>' + esc(e.message) + '</b></p><button class="tombol garis" id="ulang">Coba lagi</button></div>'; $('ulang').onclick = muat; }
+    let d;
+    try { d = await TS.panggil('dasborWilayah', { wilayah_id: st.id, hari: st.hari }, { get: true, tanpaToken: true }); }
+    catch (e) {
+      if (/K-/.test(st.id) && /tidak ditemukan/i.test(e.message)) { const r = await rantaiStatik(st.id.slice(2)), t = r[r.length - 1]; d = dataNol(st.id, r.map(x => ({ id: x.id, nama: x.nama, tingkat: x.tingkat })), t ? t.nama : st.id, t ? t.tingkat : 'provinsi'); }
+      else { v.innerHTML = '<div class="kartu tengah"><p><b>' + esc(e.message) + '</b></p><button class="tombol garis" id="ulang">Coba lagi</button></div>'; $('ulang').onclick = muat; return; }
+    }
+    if (/^K-/.test(st.id)) { const r = await rantaiStatik(st.id.slice(2)); if (r.length) { d.jejak = r.map(x => ({ id: x.id, nama: x.nama, tingkat: x.tingkat })); d.nama = r[r.length - 1].nama; d.tingkat = r[r.length - 1].tingkat; } }
+    d.anak = await gabungAnak(d); d.anak_tingkat = d.anak.length ? d.anak[0].tingkat : '';
+    tampil(d);
   }
   muat();
 })();
